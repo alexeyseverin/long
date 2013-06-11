@@ -48,17 +48,30 @@ mylong alloclong(int size) {
 	return res;
 }
 
+void outl(mylong res) {
+    if (res.sign)
+        printf("-");
+    int i;
+    for (i = res.size - 1; i >= 0; i--)
+        printf("%d", res.d[i]);
+    printf("\n");
+}
+
 void writel(mylong res, const char *f) {
     FILE *fp = fopen(f, "w+");
     if (fp == NULL) {
         printf("write to file err\n");
         exit(1);
     }
-    if (res.sign)
-        fprintf(fp, "-");
-    int i;
-    for (i = res.size - 1; i >= 0; i--)
-        fprintf(fp, "%d", res.d[i]);
+    if (res.size == 0) {
+        fprintf(fp, "0");
+    } else {
+        if (res.sign)
+            fprintf(fp, "-");
+        int i;
+        for (i = res.size - 1; i >= 0; i--)
+            fprintf(fp, "%d", res.d[i]);
+    }
     fclose(fp);
 }
 
@@ -182,10 +195,91 @@ mylong mull(mylong al1,mylong al2) {
     return res;
 }
 
+mylong mulltoint(mylong al1, int al2) {
+    if (al2 == 0) {
+        mylong zero = alloclong(0);
+        return zero;
+    }
+    mylong res = alloclong(al1.size + (int)log10(al2) + 1);
+    int al2sign = al2 < 0;
+    if (al2 < 0) {
+        al2 = -al2;
+    }
+    res.size = al1.size;
+    int c=0,i,j,k;
+    if ((al1.sign&&al2sign)||(!al1.sign&&!al2sign)) 
+        res.sign=0; 
+    else 
+        res.sign=1; 
+    long long r = 0;
+    for (i=0;i<res.size|r;i++) {
+        long long tmp = al2;
+        if (i < al1.size)
+            tmp *= al1.d[i];
+        else
+            tmp = 0;
+        tmp += r;
+        res.d[i] = tmp%10;
+        r = tmp / 10;
+   
+        if (res.d[res.size])
+            res.size++;
+    }
+
+    return res;
+}
+
+
+mylong divl(mylong al1, mylong al2)
+{
+    if (comparel(al1,al2) < 0) {
+        mylong zero=alloclong(0);
+        return zero;
+    }
+    mylong res = alloclong(al1.size-al2.size+1);
+    if ((al1.sign&&al2.sign)||(!al1.sign&&!al2.sign)) res.sign=0; else res.sign=1;
+    mylong curvalue  = alloclong(al2.size + 1);
+    al2.sign = al1.sign = 0;
+    curvalue.size = 1;
+    int i;  
+    for (i = al1.size-1; i>=0; i--)  {
+        int j; 
+        for (j = curvalue.size;j>=1;j--)
+            curvalue.d[j] = curvalue.d[j-1];
+        if (curvalue.d[curvalue.size])
+            curvalue.size++;
+        curvalue.d[0] = al1.d[i];
+        int x = 0;
+        int l = 0, r = 10;
+        while (l <= r) {
+            int m = (l + r) >> 1;
+            mylong cur = mulltoint(al2, m);
+            if (comparel(cur, curvalue) <= 0)  {
+                x = m;
+                l = m+1;
+            } else
+                r = m-1;
+        }
+        res.d[i] = x;
+        mylong tmp = mulltoint(al2, x),
+            tmp2 = subl_unsign(curvalue, tmp);
+        freelong(curvalue);
+        curvalue = tmp2;
+        freelong(tmp);
+    }
+
+    int pos = al1.size;
+    while (pos>=0 && !res.d[pos])
+        pos--;
+    res.size = pos+1;
+    freelong(curvalue);
+    return res;
+}
+
 void main() {
    mylong t = readl("my");
    mylong p = readl("res");
-   mylong res = mull(t,p);
+   mylong res = divl(t,p);
 writel(res, "file");
 
 }
