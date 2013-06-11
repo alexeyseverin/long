@@ -161,10 +161,31 @@ mylong addl_unsign(mylong al1, mylong al2) {
     return res;
 }
 
+mylong mull(mylong al1,mylong al2) {
+    mylong res = alloclong(al1.size + al2.size);
+    res.size = 0;
+    int c=0,i,j,k;
+    if ((al1.sign&&al2.sign)||(!al1.sign&&!al2.sign)) res.sign=0; else res.sign=1;
+    for (i=0;i<al1.size;++i) 
+        for (j=0;j<al2.size;++j) {
+        k=i+j;
+        c=al1.d[i]*al2.d[j];
+        while (c) {
+            c+=res.d[k];
+            res.d[k]=c%10;
+            c/=10;
+            if (k+1>res.size) 
+                res.size=k+1;
+            k++;                
+        }
+    } 
+    return res;
+}
+
 void main() {
    mylong t = readl("my");
    mylong p = readl("res");
-   mylong res = addl(t,p);
+   mylong res = mull(t,p);
 writel(res, "file");
 
 }

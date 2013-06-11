@@ -12,4 +12,4 @@ mylong subl(mylong, mylong);
 mylong  subl_unsign(mylong, mylong);
 mylong addl(mylong, mylong);
 mylong addl_unsign(mylong, mylong);
-
+mylong mull(mylong, mylong);
