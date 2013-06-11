@@ -27,10 +27,7 @@ mylong readl(const char *s) {
         c = getc(fp);
         res.d[i] = c - '0';        
     }
-
-    for (i= 0; i < res.size; ++i)
-        printf("d[i]=%d\n", res.d[i]);
-    
+    fclose(fp);
     return res;
 }
 
@@ -46,10 +43,25 @@ mylong alloclong(int size) {
 	return res;
 }
 
+void writel(mylong res, const char *f) {
+    FILE *fp = fopen(f, "w+");
+    if (fp == NULL) {
+        printf("write to file err\n");
+        exit(1);
+    }
+    if (res.sign)
+        fprintf(fp, "-");
+    int i;
+    for (i = res.size - 1; i >= 0; i--)
+        fprintf(fp, "%d", res.d[i]);
+    fclose(fp);
+}
+
 void freelong(mylong res) {
     free(res.d);
 }
 
 void main() {
    mylong t = readl("my");
+   writel(t, "res");
 }
