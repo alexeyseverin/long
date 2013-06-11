@@ -1,6 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include "clevel.h"
+
+int max(int a, int b) {
+    return (a > b ? a : b);
+}
 
 mylong readl(const char *s) {
     mylong res;
@@ -63,26 +68,103 @@ void freelong(mylong res) {
 
 
 int comparel(mylong al1, mylong al2) {
-        int i, k1 = (al1.sign ? -1 : 1), k2 = ( al2.sign ? 1 : -1);
-        /*
-        al1>al2 return 1
-        al1<al2 return -1
-        al1=al2 return 0
-        */
-        if (al1.sign&&!al2.sign) return -1;
-        if (!al1.sign&&al2.sign) return 1;
-        if (al1.size<al2.size) return -1;
-        if (al1.size>al2.size) return 1;
-        for (i=al1.size;i>=0;--i) {
-                if (al1.d[i]>al2.d[i]) return k1;
-                if (al1.d[i]<al2.d[i]) return k2;
-        }
-        return 0;
+    int i, k1 = (al1.sign ? -1 : 1), k2 = ( al2.sign ? 1 : -1);
+    /*
+    al1>al2 return 1
+    al1<al2 return -1
+    al1=al2 return 0
+    */
+    if (al1.sign&&!al2.sign) return -1;
+    if (!al1.sign&&al2.sign) return 1;
+    if (al1.size<al2.size) return -1;
+    if (al1.size>al2.size) return 1;
+    for (i=al1.size;i>=0;--i) {
+            if (al1.d[i]>al2.d[i]) return k1;
+            if (al1.d[i]<al2.d[i]) return k2;
+    }
+    return 0;
 }
 
+mylong subl(mylong al1, mylong al2) {
+    mylong res;
+    //a>0 b<0 = a+b
+    if (!al1.sign&&al2.sign) {
+        res = addl_unsign(al1,al2);        
+    }
+    //a<0 b>0 = -(|a|+|b|)
+    if (al1.sign&&!al2.sign) {
+        res = addl_unsign(al1,al2);        
+        res.sign=1-res.sign;
+    }
+    //a<0 b<0 =  |b|-|a| 
+    if (al1.sign&&al2.sign) {
+        res =subl_unsign(al2,al1);
+        res.sign = 1 - res.sign;
+    }
+    if (!al1.sign && !al2.sign) {
+        res = subl_unsign(al1,al2);    
+    }
+    return res;
+} 
+
+mylong subl_unsign(mylong al1, mylong al2) {
+    mylong res = alloclong(max(al1.size, al2.size));
+    if (comparel(al1, al2) == -1) {
+        mylong tmp = al1;
+        al1 = al2;
+        al2 = tmp;        
+        res.sign = 1;
+    }
+    int i,c=0;
+    for (i=0;i<al1.size;++i) {
+        c+=al1.d[i]-al2.d[i]+10;
+        res.d[i]=c%10;
+        if (c<10) c=-1; else c=0;
+    }
+    while (res.d[res.size - 1]==0&&res.size>1) res.size--;
+    return res;
+}
+
+
+mylong addl(mylong al1, mylong al2) {
+    mylong res;
+    //a>0 b<0 = |a|-|b| 
+    if (!al1.sign&&al2.sign) {
+        res = subl_unsign(al1,al2);       
+    }
+    //a<0 b>0 = |b|-|a|
+    if (al1.sign&&!al2.sign) {
+        res = subl_unsign(al2,al1);        
+    }
+    //a<0 b<0 = -(|a|+|b|) 
+    if (al1.sign&&al2.sign) {
+        res = addl_unsign(al1, al2);
+        res.sign = 1;
+    }
+    if (!al1.sign && !al2.sign) {
+        res = addl_unsign(al1,al2);    
+    }
+    return res;
+}
+
+mylong addl_unsign(mylong al1, mylong al2) { 
+    mylong res = alloclong(max(al1.size, al2.size));
+    int i,c=0,m=max(al1.size,al2.size);
+    for (i=0;i<m;++i) {
+        c+=al1.d[i]+al2.d[i];
+        res.d[i]=c%10;
+        c/=10;
+    }
+    if (c>0) 
+        res.d[m]=c;
+    res.size=m;
+    return res;
+}
 
 void main() {
    mylong t = readl("my");
    mylong p = readl("res");
-   printf("%d",comparel(t,p));
+   mylong res = addl(t,p);
+writel(res, "file");
+
 }
