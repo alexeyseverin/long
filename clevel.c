@@ -35,6 +35,14 @@ mylong readl(const char *s) {
     fclose(fp);
     return res;
 }
+mylong copylong(mylong obj) {
+    mylong res = alloclong(obj.size);
+    res.sign=obj.sign;
+    int i;
+    for (i = 0; i<res.size; ++i)
+        res.d[i] = obj.d[i];
+    return res;
+}
 
 mylong alloclong(int size) {
 	mylong res;
@@ -232,6 +240,8 @@ mylong mulltoint(mylong al1, int al2) {
 
 mylong divl(mylong al1, mylong al2)
 {
+    if (al2.size == 0)
+        exit(1);
     if (comparel(al1,al2) < 0) {
         mylong zero=alloclong(0);
         return zero;
@@ -276,10 +286,62 @@ mylong divl(mylong al1, mylong al2)
     return res;
 }
 
+
+
+mylong modl(mylong al1, mylong al2)
+{
+    if (al2.size == 0)
+        exit(1);
+    if (!al1.sign && !al2.sign)
+        if (comparel(al1,al2) < 0) {
+            mylong re=copylong(al1);
+            return re;
+        }
+    int al1sign=al1.sign, al2sign=al2.sign;
+
+    mylong curvalue  = alloclong(al2.size + 1);
+    al2.sign = al1.sign = 0;
+    curvalue.size = 1;
+    int i;  
+    for (i = al1.size-1; i>=0; i--)  {
+        int j; 
+        for (j = curvalue.size;j>=1;j--)
+            curvalue.d[j] = curvalue.d[j-1];
+        if (curvalue.d[curvalue.size])
+            curvalue.size++;
+        curvalue.d[0] = al1.d[i];
+        int x = 0;
+        int l = 0, r = 10;
+        while (l <= r) {
+            int m = (l + r) >> 1;
+            mylong cur = mulltoint(al2, m);
+            if (comparel(cur, curvalue) <= 0)  {
+                x = m;
+                l = m+1;
+            } else
+                r = m-1;
+        }
+        mylong tmp = mulltoint(al2, x),
+            tmp2 = subl_unsign(curvalue, tmp);
+        freelong(curvalue);
+        curvalue = tmp2;
+        freelong(tmp);
+    }
+	if (curvalue.size != 0 && al1sign ^ al2sign) {
+		mylong old = curvalue;
+		curvalue = subl_unsign(al2, curvalue);
+		freelong(old);
+	}
+
+	curvalue.sign = al2sign;
+
+    return curvalue;
+}
+
 void main() {
    mylong t = readl("my");
    mylong p = readl("res");
-   mylong res = divl(t,p);
+   mylong res = modl(t,p);
 writel(res, "file");
 
 }
