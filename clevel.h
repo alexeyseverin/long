@@ -14,4 +14,7 @@ mylong addl(mylong, mylong);
 mylong mull(mylong, mylong);
 mylong divl(mylong, mylong);
 mylong modl(mylong, mylong);
+mylong negl(mylong);
 mylong addl_unsign(mylong, mylong);
+void outl(mylong);
+mylong copylong(mylong);

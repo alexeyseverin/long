@@ -32,6 +32,11 @@ mylong readl(const char *s) {
         c = getc(fp);
         res.d[i] = c - '0';        
     }
+    for (i = size - 1; i>=0; --i) {
+        if (res.d[i] != 0)
+            break;
+        res.size--;
+    }
     fclose(fp);
     return res;
 }
@@ -42,6 +47,11 @@ mylong copylong(mylong obj) {
     for (i = 0; i<res.size; ++i)
         res.d[i] = obj.d[i];
     return res;
+}
+
+mylong negl(mylong a) {
+    a.sign = !a.sign;
+    return a;
 }
 
 mylong alloclong(int size) {
@@ -142,7 +152,7 @@ mylong subl_unsign(mylong al1, mylong al2) {
         res.d[i]=c%10;
         if (c<10) c=-1; else c=0;
     }
-    while (res.d[res.size - 1]==0&&res.size>1) res.size--;
+    while (res.d[res.size - 1]==0&&res.size>=1) res.size--;
     return res;
 }
 
@@ -288,8 +298,7 @@ mylong divl(mylong al1, mylong al2)
 
 
 
-mylong modl(mylong al1, mylong al2)
-{
+mylong modl(mylong al1, mylong al2) {
     if (al2.size == 0)
         exit(1);
     if (!al1.sign && !al2.sign)
@@ -327,6 +336,11 @@ mylong modl(mylong al1, mylong al2)
         curvalue = tmp2;
         freelong(tmp);
     }
+    for (i = curvalue.size-1; i>=0; --i) {
+        if (curvalue.d[i] != 0)
+            break;
+        curvalue.size--;
+    }
 	if (curvalue.size != 0 && al1sign ^ al2sign) {
 		mylong old = curvalue;
 		curvalue = subl_unsign(al2, curvalue);
@@ -338,10 +352,3 @@ mylong modl(mylong al1, mylong al2)
     return curvalue;
 }
 
-void main() {
-   mylong t = readl("my");
-   mylong p = readl("res");
-   mylong res = modl(t,p);
-writel(res, "file");
-
-}
