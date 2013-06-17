@@ -16,7 +16,6 @@ public:
 	const Long operator *(Long&);
 	const Long operator /(Long&);
 	const Long operator %(Long&);
-	const Long operator ^(Long&);
 
 	bool operator ==(const Long&);
 	bool operator <(const Long&);

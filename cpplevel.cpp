@@ -8,13 +8,13 @@ Long::Long(const char* s) {
 }
 
 
-const mylong &Long::getnum() const {
-	return num;
-}
 
 Long::~Long() {
 	if (num.d)
 		freelong(num);
+}
+const mylong &Long::getnum() const {
+	return num;
 }
 
 Long::Long(const mylong &a) {
