@@ -36,5 +36,11 @@ cpplevel.o: cpplevel.cpp libclevel.so
 
 clean:
 	rm -f *.o
+	rm -f *.pyc
+
+cleanall: clean
+	rm -f *.cxx
+	rm -f *.so
+
 
 
