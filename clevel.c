@@ -22,8 +22,11 @@ mylong readl(const char *s) {
     if (sign == '-') 
         signoff = 1;
 	//file size
-	fseek(fp, 0L, SEEK_END);
+	fseek(fp, -1L, SEEK_END);
     int size = ftell(fp) - signoff;
+    if (isdigit(getc(fp))) {
+        size++;
+    }
     res = alloclong(size);
 	res.sign = signoff;
     fseek(fp, signoff, SEEK_SET);
