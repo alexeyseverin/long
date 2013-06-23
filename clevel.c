@@ -267,10 +267,13 @@ mylong divl(mylong al1, mylong al2)
     int i;  
     for (i = al1.size-1; i>=0; i--)  {
         int j; 
-        for (j = curvalue.size;j>=1;j--)
-            curvalue.d[j] = curvalue.d[j-1];
-        if (curvalue.d[curvalue.size])
-            curvalue.size++;
+        if (curvalue.size > 0) {
+            for (j = curvalue.size;j>=1;j--)
+                curvalue.d[j] = curvalue.d[j-1];
+            if (curvalue.d[curvalue.size])
+                curvalue.size++;
+        } else
+            curvalue.size = 1;
         curvalue.d[0] = al1.d[i];
         int x = 0;
         int l = 0, r = 10;
@@ -317,10 +320,13 @@ mylong modl(mylong al1, mylong al2) {
     int i;  
     for (i = al1.size-1; i>=0; i--)  {
         int j; 
-        for (j = curvalue.size;j>=1;j--)
-            curvalue.d[j] = curvalue.d[j-1];
-        if (curvalue.d[curvalue.size])
-            curvalue.size++;
+        if (curvalue.size > 0) {
+            for (j = curvalue.size;j>=1;j--)
+                curvalue.d[j] = curvalue.d[j-1];
+            if (curvalue.d[curvalue.size])
+                curvalue.size++;
+        } else
+            curvalue.size = 1;
         curvalue.d[0] = al1.d[i];
         int x = 0;
         int l = 0, r = 10;
