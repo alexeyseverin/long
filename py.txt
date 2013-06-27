@@ -1,0 +1,38 @@
+def GCD_Ex(a,b):
+    zero=l.Long("0.txt")
+    x1=l.Long("0.txt")
+    x2=l.Long("1.txt")
+    y1=l.Long("1.txt")
+    y2=l.Long("0.txt")
+    while b > zero:
+        r=a%b
+        q=a/b
+        a=b
+        b=r
+        
+        r=q*x1
+        xx=x2-r
+        r=q*y1
+        yy=y2-r
+
+        x2=x1
+        x1=xx
+        y2=y1
+        y1=yy
+
+    return x2,y2
+
+
+a=l.Long("n1_test.txt")
+b=l.Long("n2_test.txt")
+
+x,y=GCD_Ex(a,b)
+
+q=x*a
+r=y*b
+gcd=q+r
+
+x.outf("x.txt")
+y.outf("y.txt")
+gcd.outf("d.txt")
+       
