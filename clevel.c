@@ -61,7 +61,7 @@ mylong alloclong(int size) {
 	mylong res;
 	res.sign = 0;
 	res.size = size;
-	res.d = calloc(size, 1); 
+	res.d = calloc(size, 2); 
 	if (res.d == NULL) {
 		printf("alloc err\n");
 		exit(1);
@@ -132,8 +132,8 @@ mylong subl(mylong al1, mylong al2) {
     }
     //a<0 b<0 =  |b|-|a| 
     if (al1.sign&&al2.sign) {
-        res =subl_unsign(al2,al1);
-        res.sign = 1 - res.sign;
+        res = subl_unsign(al2,al1);
+        res.sign = res.sign;
     }
     if (!al1.sign && !al2.sign) {
         res = subl_unsign(al1,al2);    
@@ -143,15 +143,21 @@ mylong subl(mylong al1, mylong al2) {
 
 mylong subl_unsign(mylong al1, mylong al2) {
     mylong res = alloclong(max(al1.size, al2.size));
+    al1.sign = 0;
+    al2.sign = 0;
     if (comparel(al1, al2) == -1) {
         mylong tmp = al1;
         al1 = al2;
         al2 = tmp;        
         res.sign = 1;
     }
-    int i,c=0;
+    int i,c=0,j,k;
     for (i=0;i<al1.size;++i) {
-        c+=al1.d[i]-al2.d[i]+10;
+	j=al1.d[i];
+	k=al2.d[i];
+	if (i>al1.size) j=0;
+	if (i>al2.size) k=0;
+        c+=j-k+10;
         res.d[i]=c%10;
         if (c<10) c=-1; else c=0;
     }
@@ -182,16 +188,23 @@ mylong addl(mylong al1, mylong al2) {
 }
 
 mylong addl_unsign(mylong al1, mylong al2) { 
-    mylong res = alloclong(max(al1.size, al2.size));
-    int i,c=0,m=max(al1.size,al2.size);
+    mylong res = alloclong(max(al1.size, al2.size)+1);
+    int i,c=0,j,k,m=max(al1.size,al2.size);
     for (i=0;i<m;++i) {
-        c+=al1.d[i]+al2.d[i];
+	j=al1.d[i];
+	k=al2.d[i];
+	if (i > al1.size) j = 0;
+	if (i > al2.size) k = 0;
+        c+=j+k;
         res.d[i]=c%10;
         c/=10;
     }
-    if (c>0) 
+    if (c>0) {
+	m=m+1; 
         res.d[m]=c;
+    }
     res.size=m;
+    if ((res.d[m-1] == 0) && (m>1)) res.d[m-1] = 1;
     return res;
 }
 
@@ -255,14 +268,14 @@ mylong divl(mylong al1, mylong al2)
 {
     if (al2.size == 0)
         exit(1);
+    mylong res = alloclong(al1.size);
+    if ((al1.sign&&al2.sign)||(!al1.sign&&!al2.sign)) res.sign=0; else res.sign=1;
+    al2.sign = al1.sign = 0; 
     if (comparel(al1,al2) < 0) {
         mylong zero=alloclong(0);
         return zero;
     }
-    mylong res = alloclong(al1.size-al2.size+1);
-    if ((al1.sign&&al2.sign)||(!al1.sign&&!al2.sign)) res.sign=0; else res.sign=1;
-    mylong curvalue  = alloclong(al2.size + 1);
-    al2.sign = al1.sign = 0;
+    mylong curvalue  = alloclong(al2.size);
     curvalue.size = 1;
     int i;  
     for (i = al1.size-1; i>=0; i--)  {
