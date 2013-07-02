@@ -1,3 +1,4 @@
+import cpplevel as l
 def GCD_Ex(a,b):
     zero=l.Long("0.txt")
     x1=l.Long("0.txt")
